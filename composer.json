@@ -2,7 +2,7 @@
     "name": "mrkelpy/laminariacore-databases",
     "description": "A utility library for connecting and managing databases in PHP",
     "type": "library",
-    "license": "MIT License",
+    "license": "MIT",
     "authors": [
         {
             "name": "MrKelpy"
