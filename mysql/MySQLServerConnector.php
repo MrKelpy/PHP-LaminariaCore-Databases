@@ -40,7 +40,7 @@
 		 * @param string $database The database to connect to.
 		 * @return MySQLServerConnector The connection to the MySQL server.
 		 */
-		public function makeNoAuth(string $server, string $database) : MySQLServerConnector {
+		public static function makeNoAuth(string $server, string $database) : MySQLServerConnector {
 			return new MySQLServerConnector($server, $database, "", "");
 		}
 		
@@ -52,7 +52,7 @@
 		 * @param string $password The password to connect with.
 		 * @return MySQLServerConnector The connection to the MySQL server.
 		 */
-		public function makeWithAuth(string $server, string $database, string $user, string $password) : MySQLServerConnector {
+		public static function makeWithAuth(string $server, string $database, string $user, string $password) : MySQLServerConnector {
 			return new MySQLServerConnector($server, $database, $user, $password);
 		}
 		
