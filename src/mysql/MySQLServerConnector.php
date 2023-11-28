@@ -1,5 +1,5 @@
 <?php
-	namespace src\mysql;
+	namespace LaminariaCore;
 	use mysqli;
 	
 	/**
