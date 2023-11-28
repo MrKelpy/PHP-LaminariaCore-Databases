@@ -217,6 +217,16 @@
 		}
 		
 		/**
+		 * Runs a MySQL script from a given filepath.
+		 * @param string $path The path to the MySQL script.
+		 * @return void
+		 */
+		public function runMySQLScript(string $path): void {
+			$commands = file_get_contents($path);
+			$this->getConnection()->multi_query($commands);
+		}
+		
+		/**
 		 * Converts an array into a query string used to specify fields or values in a query.
 		 * @param array $array The array to convert into a query string.
 		 * @return string The query string.
