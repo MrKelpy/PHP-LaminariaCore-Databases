@@ -1,9 +1,8 @@
 <?php
-	namespace LaminariaCore;
+	namespace src\mysql;
 	
 	use ArgumentCountError;
 	use mysqli;
-	use mysqli_result;
 	use mysqli_stmt;
 	
 	/**
