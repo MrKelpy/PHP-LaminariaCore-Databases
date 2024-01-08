@@ -61,6 +61,7 @@
 		 * @return void
 		 */
 		public function close(): void {
+            $this->connection->kill($this->connection->thread_id);
 			$this->connection->close();
 		}
 		

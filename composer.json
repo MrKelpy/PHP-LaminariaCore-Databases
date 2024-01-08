@@ -8,7 +8,7 @@
             "name": "MrKelpy"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "ext-mysqli": "*"
     },

@@ -58,19 +58,19 @@
 		 * @return void
 		 * @noinspection SqlNoDataSourceInspection
 		 */
-		public function insert(string $table, array $fields, array ...$values): void {
-			
-			// Checks if the number of fields and values are the same. If not, throw an error.
-			if (count($fields) != count($values)) {
+		public function insert(string $table, array $fields, array $values): void {
+
+            // Checks if the number of fields and values are the same. If not, throw an error.
+			if (count($fields) != count($values) && count($fields) != 0) {
 				throw new ArgumentCountError("The number of fields and values must be the same.");
 			}
 			
 			// Creates the sanitised query string and determines the fields to insert into.
-			$placeholders = str_split(str_repeat("?, ", count($fields)));
-			$fields = count($fields) != 0 ? $this->arrayToQueryString($fields) : "";
+            // Create an array with as many '?' as there are fields
+			$placeholders = array_fill(0, count($fields) != 0 ? count($fields) : count($values), '?');
+			$fields = count($fields) != 0 ? '('. $this->arrayToQueryString($fields) .') ' : "";
 			
-			
-			$query = "INSERT INTO $table " . $fields . " VALUES " . $this->arrayToQueryString($placeholders);
+			$query = "INSERT INTO $table " . $fields . "VALUES " . '('. $this->arrayToQueryString($placeholders) . ')';
 			$this->bindParameters($query, $values)->execute();
 		}
 		
@@ -81,8 +81,8 @@
 		 * @param array $values The values to insert into the table.
 		 * @return void
 		 */
-		public function insertWhole(string $table, array ...$values): void {
-			$this->insert($table, array(), array_values($values));
+		public function insertWhole(string $table, array $values): void {
+			$this->insert($table, array(), $values);
 		}
 		
 		/**
@@ -97,26 +97,26 @@
 		{
 			// Construct the DELETE query with the specified condition and execute it.
 			$query = "DELETE FROM $table WHERE $condition";
-			$this->sendQuery($query);
+			$this->sendNonQuery($query);
 		}
 		
 		/**
 		 * Updates the values of an entry in a table based on a specified condition.
 		 *
 		 * @param string $table  The table in which to update the entry.
-		 * @param array  $values An associative array of field-value pairs to update.
+         * @param string $field  The field to update the entry with.
+		 * @param string  $value The value to update the entry with.
 		 * @param string $condition The condition for updating entries (e.g., "id = ?").
 		 * @return void
 		 * @noinspection SqlNoDataSourceInspection
 		 */
-		public function update(string $table, array $values, string $condition): void
+		public function update(string $table, string $field, string $value, string $condition): void
 		{
 			// Construct the UPDATE query with the specified values.
-			$setClause = $this->arrayToQueryString($values);
-			$query = "UPDATE $table SET $setClause WHERE $condition";
+			$query = "UPDATE $table SET $field = '$value' WHERE $condition";
 			
 			// Send the UPDATE query to the database.
-			$this->sendQuery($query);
+			$this->sendNonQuery($query);
 		}
 		
 		/**
@@ -202,6 +202,9 @@
 			// Parse the results into a matrix and return it.
 			while ($row = $result->fetch_assoc())
 				$resultsMatrix[] = $row;
+
+            // After everything is run, wait for mysqli to be ready for more
+            while (mysqli_next_result($this->getConnection())) {}
 			
 			return $resultsMatrix;
 		}
@@ -213,6 +216,10 @@
 		 */
 		public function sendNonQuery(string $statement): int {
 			$this->getConnection()->query($statement);
+
+            // After everything is run, wait for mysqli to be ready for more
+            while (mysqli_next_result($this->getConnection())) {}
+
 			return $this->getConnection()->affected_rows;
 		}
 		
@@ -224,6 +231,9 @@
 		public function runMySQLScript(string $path): void {
 			$commands = file_get_contents($path);
 			$this->getConnection()->multi_query($commands);
+
+            // After everything is run, wait for mysqli to be ready for more
+            while (mysqli_next_result($this->getConnection())) {}
 		}
 		
 		/**
@@ -240,7 +250,7 @@
 			$query = "";
 			foreach ($array as $item) $query .= $item . ", ";
 			
-			return '('. substr($query, 0, strlen($query) - 2) .')';
+			return substr($query, 0, strlen($query) - 2);
 		}
 		
 		/**
